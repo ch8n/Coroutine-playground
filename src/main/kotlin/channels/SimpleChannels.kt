@@ -7,6 +7,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
@@ -22,6 +23,7 @@ fun main() = runBlocking {
     example1()
     example2()
     example3()
+    example4()
 }
 
 @ExperimentalTime
@@ -60,6 +62,21 @@ suspend fun example3() = runBlocking {
             (1..5).map { emit(getWeatherData()) }
         }
         producer.collect {
+            println(it)
+        }
+    }
+    println("========FLOW-OUTPUT=========")
+    println(duration)
+}
+
+@ExperimentalTime
+@ExperimentalCoroutinesApi
+suspend fun example4() = runBlocking {
+    val (_, duration) = measureTimedValue {
+        val producer = flow<Weather> {
+            (1..5).map { emit(getWeatherData()) }
+        }
+        producer.buffer().collect {
             println(it)
         }
     }
